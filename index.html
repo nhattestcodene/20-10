@@ -38,8 +38,6 @@ max-width:600px;
 position:relative;
 }
 
-/* lời chúc */
-
 h1{
 font-size:60px;
 background:linear-gradient(90deg,#ff66cc,#ff99dd,#ff3385);
@@ -59,8 +57,6 @@ font-size:22px;
 opacity:0.9;
 }
 
-/* sao rơi */
-
 .star{
 position:absolute;
 top:-50px;
@@ -70,14 +66,8 @@ opacity:0.9;
 }
 
 @keyframes fall{
-0%{
-transform:translateY(-50px) rotate(0deg);
-opacity:1;
-}
-100%{
-transform:translateY(400px) rotate(360deg);
-opacity:0;
-}
+0%{transform:translateY(-50px) rotate(0deg);opacity:1;}
+100%{transform:translateY(400px) rotate(360deg);opacity:0;}
 }
 
 button{
@@ -141,6 +131,11 @@ margin-top:5px;
 
 <body>
 
+<!-- NHẠC NỀN -->
+<audio id="bgmusic" autoplay loop>
+<source src="https://nhattestcodene.github.io/Music/beta.mp3" type="audio/mpeg">
+</audio>
+
 <canvas id="space"></canvas>
 
 <div class="container" id="wishBox">
@@ -178,6 +173,15 @@ margin-top:5px;
 </div>
 
 <script>
+
+/* fix autoplay iPhone */
+
+const music=document.getElementById("bgmusic");
+music.volume=0.5;
+
+document.body.addEventListener("click",()=>{
+music.play();
+},{once:true});
 
 /* canvas galaxy */
 
@@ -277,7 +281,7 @@ requestAnimationFrame(animate);
 
 animate();
 
-/* sao rơi quanh lời chúc */
+/* sao rơi */
 
 const box=document.getElementById("wishBox");
 
@@ -334,14 +338,12 @@ let btn=document.getElementById("rollBtn");
 btn.disabled=true;
 
 diceEl.classList.add("roll");
-diceEl.innerHTML="🎲";
 
 setTimeout(()=>{
 
 diceEl.classList.remove("roll");
 
 let dice=Math.floor(Math.random()*6)+1;
-
 let candy=[1,1,2,3,4,5][dice-1];
 
 diceEl.innerHTML="🎲 "+dice;
