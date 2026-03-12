@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20/10 Galaxy Love</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI;
+}
+
+body{
+height:100vh;
+overflow:hidden;
+background:black;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:0;
+}
+
+.container{
+z-index:2;
+max-width:600px;
+position:relative;
+}
+
+/* lời chúc */
+
+h1{
+font-size:60px;
+background:linear-gradient(90deg,#ff66cc,#ff99dd,#ff3385);
+-webkit-background-clip:text;
+color:transparent;
+animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+from{filter:drop-shadow(0 0 10px pink);}
+to{filter:drop-shadow(0 0 25px hotpink);}
+}
+
+p{
+margin-top:20px;
+font-size:22px;
+opacity:0.9;
+}
+
+/* sao rơi */
+
+.star{
+position:absolute;
+top:-50px;
+font-size:22px;
+animation:fall linear infinite;
+opacity:0.9;
+}
+
+@keyframes fall{
+0%{
+transform:translateY(-50px) rotate(0deg);
+opacity:1;
+}
+100%{
+transform:translateY(400px) rotate(360deg);
+opacity:0;
+}
+}
+
+button{
+margin-top:20px;
+padding:15px 35px;
+border:none;
+border-radius:40px;
+font-size:18px;
+cursor:pointer;
+background:linear-gradient(45deg,#ff4da6,#ff1a75);
+color:white;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.1);
+box-shadow:0 0 20px hotpink;
+}
+
+input{
+padding:12px;
+border-radius:10px;
+border:none;
+font-size:16px;
+width:200px;
+text-align:center;
+margin-top:20px;
+}
+
+#dice{
+font-size:90px;
+margin-top:20px;
+display:inline-block;
+}
+
+.roll{
+animation:spin 0.15s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg) scale(1)}
+50%{transform:rotate(180deg) scale(1.2)}
+100%{transform:rotate(360deg) scale(1)}
+}
+
+#players{
+margin-top:20px;
+max-height:120px;
+overflow:auto;
+font-size:16px;
+}
+
+.note{
+font-size:14px;
+opacity:0.8;
+margin-top:5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="space"></canvas>
+
+<div class="container" id="wishBox">
+
+<h1>💐 Chúc Mừng 20/10 💐</h1>
+
+<p>Chúc bạn luôn xinh đẹp, hạnh phúc và tỏa sáng như các vì sao 💖</p>
+
+<button onclick="boom()">💖 Thả Tim</button>
+
+<br>
+
+<button onclick="showDice()">🎲 Chơi Xúc Xắc Nhận Kẹo</button>
+
+<div id="diceGame" style="display:none">
+
+<input id="playerName" placeholder="Nhập tên">
+
+<br>
+
+<button id="rollBtn" onclick="rollDice()">🎲 Lắc Xúc Xắc</button>
+
+<div id="dice">🎲</div>
+
+<h2 id="result"></h2>
+
+<h3 id="candy"></h3>
+
+<p id="note" class="note"></p>
+
+<div id="players"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/* canvas galaxy */
+
+const canvas=document.getElementById("space");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let stars=[];
+let particles=[];
+
+for(let i=0;i<200;i++){
+stars.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+z:Math.random()*canvas.width
+});
+}
+
+function drawStars(){
+
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+for(let s of stars){
+
+s.z-=2;
+
+if(s.z<=0)s.z=canvas.width;
+
+let x=(s.x-canvas.width/2)*(canvas.width/s.z)+canvas.width/2;
+let y=(s.y-canvas.height/2)*(canvas.width/s.z)+canvas.height/2;
+
+let size=(1-s.z/canvas.width)*3;
+
+ctx.fillStyle="white";
+ctx.fillRect(x,y,size,size);
+
+}
+
+}
+
+/* pháo tim */
+
+function createExplosion(x,y){
+
+for(let i=0;i<40;i++){
+
+particles.push({
+x:x,
+y:y,
+vx:(Math.random()-0.5)*6,
+vy:(Math.random()-0.5)*6,
+life:100
+});
+
+}
+
+}
+
+function drawParticles(){
+
+for(let i=particles.length-1;i>=0;i--){
+
+let p=particles[i];
+
+ctx.font="20px Arial";
+ctx.fillText("💖",p.x,p.y);
+
+p.x+=p.vx;
+p.y+=p.vy;
+p.life--;
+
+if(p.life<=0)particles.splice(i,1);
+
+}
+
+}
+
+function boom(){
+createExplosion(
+Math.random()*canvas.width,
+Math.random()*canvas.height
+);
+}
+
+canvas.addEventListener("click",e=>{
+createExplosion(e.clientX,e.clientY);
+});
+
+function animate(){
+drawStars();
+drawParticles();
+requestAnimationFrame(animate);
+}
+
+animate();
+
+/* sao rơi quanh lời chúc */
+
+const box=document.getElementById("wishBox");
+
+function createStar(){
+
+let star=document.createElement("div");
+star.className="star";
+star.innerHTML="🌟";
+
+star.style.left=Math.random()*100+"%";
+star.style.animationDuration=2+Math.random()*3+"s";
+
+box.appendChild(star);
+
+setTimeout(()=>{
+star.remove();
+},5000);
+
+}
+
+setInterval(createStar,500);
+
+/* game xúc xắc */
+
+let rolled=false;
+
+function showDice(){
+
+if(localStorage.getItem("played")){
+alert("Thiết bị này đã chơi rồi 🎲");
+return;
+}
+
+document.getElementById("diceGame").style.display="block";
+
+}
+
+function rollDice(){
+
+if(rolled)return;
+
+let name=document.getElementById("playerName").value;
+
+if(name==""){
+alert("Nhập tên trước");
+return;
+}
+
+rolled=true;
+
+let diceEl=document.getElementById("dice");
+let btn=document.getElementById("rollBtn");
+
+btn.disabled=true;
+
+diceEl.classList.add("roll");
+diceEl.innerHTML="🎲";
+
+setTimeout(()=>{
+
+diceEl.classList.remove("roll");
+
+let dice=Math.floor(Math.random()*6)+1;
+
+let candy=[1,1,2,3,4,5][dice-1];
+
+diceEl.innerHTML="🎲 "+dice;
+
+document.getElementById("result").innerHTML=
+name+" lắc được "+dice;
+
+document.getElementById("candy").innerHTML=
+"🍬 Bạn nhận "+candy+" kẹo";
+
+document.getElementById("note").innerHTML=
+"📸 Chụp màn hình kết quả này để đổi kẹo";
+
+localStorage.setItem("played",true);
+
+let players=JSON.parse(localStorage.getItem("players")||"[]");
+
+players.push({name:name,candy:candy});
+
+localStorage.setItem("players",JSON.stringify(players));
+
+showPlayers();
+
+},1500);
+
+}
+
+function showPlayers(){
+
+let players=JSON.parse(localStorage.getItem("players")||"[]");
+
+let html="<b>Danh sách phát kẹo:</b><br>";
+
+players.forEach(p=>{
+html+=p.name+" - "+p.candy+" 🍬<br>";
+});
+
+document.getElementById("players").innerHTML=html;
+
+}
+
+showPlayers();
+
+</script>
+
+</body>
+</html>
